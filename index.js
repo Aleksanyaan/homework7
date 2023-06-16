@@ -37,7 +37,7 @@ if(cluster.isPrimary) {
   })
   
 } else {
-  const arr = process.env.file.split(',');
-  csvToJson(input, arr);
+  const csvFiles = process.env.file.split(',');
+  csvToJson(input, csvFiles);
 }
 
