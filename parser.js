@@ -44,6 +44,4 @@ async function csvToJson(input, arr) {
     
 }
 
-
-
 export default csvToJson;
