@@ -1,5 +1,3 @@
-import http from 'http';
-
 function resForSuccess(res,end) {
     res.writeHead(200, {'Content-Type': 'application/json'});
     res.end(end);

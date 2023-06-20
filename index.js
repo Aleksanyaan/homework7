@@ -36,7 +36,7 @@ if(cluster.isPrimary) {
       const jsonFiles = readDir('./converted', '.json');
 
       jsonFiles.then(result => {
-        resForSuccess(res, result);
+        resForSuccess(res, JSON.stringify(result));
       }).catch(error => {
         resForFail(res, error.message);
       })
@@ -48,7 +48,7 @@ if(cluster.isPrimary) {
     }else if(req.method === 'DELETE' && req.url.startsWith('/files/')) {
       const filename = req.url.split('/')[2];
       fs.unlink(`./converted/${filename}`, (err) => {
-        errorCheck(err, res, 'Delete file successfully.');
+        errorCheck(err, res, 'Delete file succesfully');
       });
     } else {
       resForFail(res, 'Invalid endpoint');
