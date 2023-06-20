@@ -6,6 +6,8 @@ import cluster from "cluster";
 import csvToJson from "./parser.js";
 import readDir from "./readdir.js";
 import divPathArr from './divide.js';
+import errorCheck from "./errorCheck.js";
+import { resForSuccess, resForFail } from "./response.js";
 
 if(cluster.isPrimary) {
   const numCPUs = os.cpus().length;
@@ -14,7 +16,7 @@ if(cluster.isPrimary) {
   
   csvFiles.then(res => {
     const workerCount = Math.min(numCPUs, res.length);
-    const csvFilePath = divPathArr(res, workerCount)
+    const csvFilePath = divPathArr(res, workerCount);
     for (let i = 0; i < csvFilePath.length; i++) {
       const worker = cluster.fork({ file: csvFilePath[i] });
       console.log('worker:', worker.id);
@@ -27,44 +29,29 @@ if(cluster.isPrimary) {
   const server = http.createServer((req, res) => {
     if (req.method === 'POST' && req.url === '/exports') {
       const csvFiles = process.env.file.split(',');
-      csvToJson('.csvFiles', csvFiles)
+      csvToJson('.csvFiles', csvFiles);
 
-      res.writeHead(200, {'Content-Type': 'application/json'});
-      res.end('Converted successfully');
+      resForSuccess(res, 'Converted successfully');
     }else if(req.method === 'GET' && req.url === '/files') {
       const jsonFiles = readDir('./converted', '.json');
 
       jsonFiles.then(result => {
-        res.writeHead(200, {'Content-Type': 'application/json'});
-        res.end(JSON.stringify(result));
+        resForSuccess(res, result);
       }).catch(error => {
-        res.writeHead(404, {'Content-Type': 'text/plain'});
-        res.end(error.message);
+        resForFail(res, error.message);
       })
     } else if(req.method === 'GET' && req.url.startsWith('/files/')) {
       const filename = req.url.split('/')[2];
       fs.readFile(`./converted/${filename}`, 'utf8', (err, data) => {
-        if (err) {
-          res.writeHead(404, {'Content-Type': 'text/plain'});
-          res.end('File not found');
-        } else {
-          res.writeHead(200, {'Content-Type': 'application/json'});
-          res.end(data);
-        }
+        errorCheck(err, res, data);
       });
     }else if(req.method === 'DELETE' && req.url.startsWith('/files/')) {
       const filename = req.url.split('/')[2];
       fs.unlink(`./converted/${filename}`, (err) => {
-        if (err) {
-          res.writeHead(404, {'Content-Type': 'text/plain'});
-          res.end('File not found');
-        }
-        res.writeHead(200, {'Content-Type': 'application/json'});
-        res.end('Delete File successfully.');
+        errorCheck(err, res, 'Delete file successfully.');
       });
     } else {
-      res.writeHead(404, {'Content-Type': 'text/plain'});
-      res.end('Invalid endpoint');
+      resForFail(res, 'Invalid endpoint');
     }
   })
   server.listen(3000);
