@@ -13,14 +13,14 @@ function server() {
       const csvFiles = process.env.file?.split(',') ?? [];
       csvToJson('.csvFiles', csvFiles);
 
-      resForSuccess(res, 'Converted successfully');
+      resForSuccess(res, 200, 'Converted successfully');
     } else if (req.method === 'GET' && req.url === '/files') {
       const jsonFiles = readDir('./converted', '.json');
 
       jsonFiles.then(result => {
-        resForSuccess(res, JSON.stringify(result));
+        resForSuccess(res, 200, JSON.stringify(result));
       }).catch(error => {
-        resForFail(res, error.message);
+        resForFail(res, 404, error.message);
       });
     } else if (req.method === 'GET' && req.url?.startsWith('/files/')) {
       const filename = req.url.split('/')[2];
@@ -33,7 +33,7 @@ function server() {
         errorCheck(err, res, 'Delete file successfully');
       });
     } else {
-      resForFail(res, 'Invalid endpoint');
+      resForFail(res, 404, 'Invalid endpoint');
     }
   }).listen(3000);
 }

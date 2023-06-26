@@ -4,9 +4,9 @@ import { ServerResponse } from 'http';
 
 function errorCheck(err: unknown, res: ServerResponse, end: string) {
     if (err) {
-        resForFail(res, 'File not found');
+        resForFail(res, 404, 'File not found');
     } else {
-        resForSuccess(res, end);
+        resForSuccess(res, 200, end);
     }
 }
 

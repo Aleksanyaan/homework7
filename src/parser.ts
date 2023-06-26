@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as process from "process";
 import { parse } from "csv-parse";
 
-async function csvToJson(input: string, arr: string[]) {
+function csvToJson(input: string, arr: string[]) {
     arr.forEach((item: string) => {
         const currentDir = process.cwd();
         const fileName = item.slice(0, item.length - 4);
